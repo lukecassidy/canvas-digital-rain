@@ -3,6 +3,7 @@
 
 let canvas, ctx;
 let columns, rows;
+let raindrops = [];
 
 // Centralised immutable object to make config changes a little easier.
 const CONFIG = Object.freeze({
@@ -30,6 +31,8 @@ function init() {
     columns = Math.floor(canvas.width / CONFIG.FONT_SIZE);
     rows = Math.floor(canvas.height / CONFIG.FONT_SIZE);
 
+    // columns = 1; // Temp override
+    raindrops = Array.from({ length: columns }, () => 0);
     animationLoop();
 }
 
@@ -42,7 +45,15 @@ function animationLoop() {
 
 // Update the state of the animation.
 function update() {
-    // placeholder
+    // Move each raindrop down one position
+    for (let i = 0; i < raindrops.length; i++) {
+        raindrops[i]++;
+
+        // Reset raindrop to top when it goes off screen
+        if (raindrops[i] * CONFIG.FONT_SIZE > canvas.height) {
+            raindrops[i] = 0;
+        }
+    }
 }
 
 // Render the current frame.
@@ -51,14 +62,12 @@ function draw() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = CONFIG.COLOURS.TEXT;
 
-    // Draw characters row by row
-    for (let y = 0; y < rows; y++) {
-        // Draw characters in each column
-        for (let i = 0; i < columns; i++) {
-            const x = i * CONFIG.FONT_SIZE;
-            const char = '0';
-            ctx.fillText(char, x, y * CONFIG.FONT_SIZE);
-        }
+    // Draw each raindrop in its column
+    for (let i = 0; i < raindrops.length; i++) {
+        const x = i * CONFIG.FONT_SIZE;
+        const y = raindrops[i] * CONFIG.FONT_SIZE;
+        const char = '0';
+        ctx.fillText(char, x, y);
     }
 }
 
