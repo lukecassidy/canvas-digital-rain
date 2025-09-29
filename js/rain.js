@@ -2,6 +2,7 @@
 'use strict';
 
 let canvas, ctx;
+let columns, rows;
 
 // Centralised immutable object to make config changes a little easier.
 const CONFIG = Object.freeze({
@@ -35,18 +36,30 @@ function animationLoop() {
     requestAnimFrame(animationLoop);
 }
 
-// Update the state of thd rain.
+// Update the state of the animation.
 function update() {
     // placeholder
 }
 
 // Render the current frame.
 function draw() {
-    // placeholder
     ctx.fillStyle = CONFIG.COLOURS.BACKGROUND;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = CONFIG.COLOURS.TEXT;
-    ctx.fillText('Luke is cool.', 50, 100);
+
+    // Calculate number of rows and columns that fit on the canvas
+    columns = Math.floor(canvas.width / CONFIG.FONT_SIZE);
+    rows = Math.floor(canvas.height / CONFIG.FONT_SIZE);
+
+    // Draw characters row by row
+    for (let y = 0; y < rows; y++) {
+        // Draw characters in each column
+        for (let i = 0; i < columns; i++) {
+            const x = i * CONFIG.FONT_SIZE;
+            const char = '0';
+            ctx.fillText(char, x, y * CONFIG.FONT_SIZE);
+        }
+    }
 }
 
 // Polyfill for cross browser requestAnimationFrame support.
