@@ -8,6 +8,10 @@ const CONFIG = Object.freeze({
     CANVAS_ID: 'canvas-digital-rain',
     FONT_SIZE: 16,
     FONT_FAMILY: 'monospace',
+    COLOURS: {
+        BACKGROUND: 'rgba(0, 0, 0, 0.05)', // semi-transparent black
+        TEXT: '#0F0',                      // matrix green
+    }
 });
 
 window.addEventListener('load', init);
@@ -39,6 +43,10 @@ function update() {
 // Render the current frame.
 function draw() {
     // placeholder
+    ctx.fillStyle = CONFIG.COLOURS.BACKGROUND;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = CONFIG.COLOURS.TEXT;
+    ctx.fillText('Luke is cool.', 50, 100);
 }
 
 // Polyfill for cross browser requestAnimationFrame support.
