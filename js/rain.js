@@ -1,23 +1,26 @@
 // Enable strict mode for cleaner, safer JavaScript.
 'use strict';
 
-
 let canvas, ctx;
 
 // Centralised immutable object to make config changes a little easier.
 const CONFIG = Object.freeze({
-    // placeholder 
+    CANVAS_ID: 'canvas-digital-rain',
+    FONT_SIZE: 16,
+    FONT_FAMILY: 'monospace',
 });
 
 window.addEventListener('load', init);
 
 function init() {
-    canvas = document.getElementById('canvas-digital-rain');
+    canvas = document.getElementById(CONFIG.CANVAS_ID);
     if (!canvas) {
-        console.error('Canvas element with id="canvas-digital-rain" not found.');
+        console.error(`Canvas element with id="${CONFIG.CANVAS_ID}" not found.`);
         return;
     }
     ctx = canvas.getContext('2d');
+    ctx.font = `${CONFIG.FONT_SIZE}px ${CONFIG.FONT_FAMILY}`;
+
     animationLoop();
 }
 
