@@ -26,6 +26,10 @@ function init() {
     ctx = canvas.getContext('2d');
     ctx.font = `${CONFIG.FONT_SIZE}px ${CONFIG.FONT_FAMILY}`;
 
+    // Calculate number of rows and columns that fit on the canvas
+    columns = Math.floor(canvas.width / CONFIG.FONT_SIZE);
+    rows = Math.floor(canvas.height / CONFIG.FONT_SIZE);
+
     animationLoop();
 }
 
@@ -46,10 +50,6 @@ function draw() {
     ctx.fillStyle = CONFIG.COLOURS.BACKGROUND;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = CONFIG.COLOURS.TEXT;
-
-    // Calculate number of rows and columns that fit on the canvas
-    columns = Math.floor(canvas.width / CONFIG.FONT_SIZE);
-    rows = Math.floor(canvas.height / CONFIG.FONT_SIZE);
 
     // Draw characters row by row
     for (let y = 0; y < rows; y++) {
