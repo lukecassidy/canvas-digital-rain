@@ -47,7 +47,7 @@ function init() {
     // Initialise 1 raindrop for testing
     raindrops = [];
     raindrops[0] = {};
-    raindrops[0].speed = 0.1;
+    raindrops[0].speed = CONFIG.SPEED + (Math.random() - 0.5) * CONFIG.SPEED_VARIATION;
     raindrops[0].y = 0;
 
     animationLoop();
