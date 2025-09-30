@@ -12,7 +12,7 @@ const CONFIG = Object.freeze({
     FONT_FAMILY: 'monospace',
     COLOURS: {
         BACKGROUND: 'rgba(0, 0, 0, 0.05)', // semi-transparent black
-        TEXT: '#0F0',                      // matrix green
+        GREENS: ['#0F0', '#0C0', '#0A0', '#090', '#060', '#030'] // matrix greens
     }
 });
 
@@ -70,13 +70,13 @@ function update() {
 function draw() {
     ctx.fillStyle = CONFIG.COLOURS.BACKGROUND;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = CONFIG.COLOURS.TEXT;
 
     // Draw each raindrop in its column
     for (let i = 0; i < raindrops.length; i++) {
         const x = i * CONFIG.FONT_SIZE;
         const y = raindrops[i] * CONFIG.FONT_SIZE;
         const char = getRandomCharacter();
+        ctx.fillStyle = CONFIG.COLOURS.GREENS[Math.floor(Math.random() * CONFIG.COLOURS.GREENS.length)];
         ctx.fillText(char, x, y);
     }
 }
