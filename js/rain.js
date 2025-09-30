@@ -16,6 +16,16 @@ const CONFIG = Object.freeze({
     }
 });
 
+// Character set for the digital rain effect
+const CHARACTERS = {
+    latin: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+    katakana: 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン',
+
+    get all() {
+        return this.latin + this.katakana;
+    }
+};
+
 window.addEventListener('load', init);
 
 function init() {
@@ -66,9 +76,15 @@ function draw() {
     for (let i = 0; i < raindrops.length; i++) {
         const x = i * CONFIG.FONT_SIZE;
         const y = raindrops[i] * CONFIG.FONT_SIZE;
-        const char = '0';
+        const char = getRandomCharacter();
         ctx.fillText(char, x, y);
     }
+}
+
+// Get a random character from our matrix character set
+function getRandomCharacter() {
+    const chars = CHARACTERS.all;
+    return chars[Math.floor(Math.random() * chars.length)];
 }
 
 // Polyfill for cross browser requestAnimationFrame support.
