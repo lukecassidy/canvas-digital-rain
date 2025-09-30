@@ -10,13 +10,15 @@ const CONFIG = Object.freeze({
     CANVAS_ID: 'canvas-digital-rain',
     FONT_SIZE: 16,
     FONT_FAMILY: 'monospace',
+    SPEED: 0.3,
+    SPEED_VARIATION: 0.2,
     COLOURS: {
         BACKGROUND: 'rgba(0, 0, 0, 0.05)', // semi-transparent black
         GREENS: ['#0F0', '#0C0', '#0A0', '#090', '#060', '#030'] // matrix greens
     }
 });
 
-// Character set for the digital rain effect
+// Character set for the digital rain effect.
 const CHARACTERS = {
     latin: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
     katakana: 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン',
@@ -28,6 +30,7 @@ const CHARACTERS = {
 
 window.addEventListener('load', init);
 
+// Initialise the canvas and start the animation loop.
 function init() {
     canvas = document.getElementById(CONFIG.CANVAS_ID);
     if (!canvas) {
@@ -41,8 +44,12 @@ function init() {
     columns = Math.floor(canvas.width / CONFIG.FONT_SIZE);
     rows = Math.floor(canvas.height / CONFIG.FONT_SIZE);
 
-    // columns = 1; // Temp override
-    raindrops = Array.from({ length: columns }, () => 0);
+    // Initialise 1 raindrop for testing
+    raindrops = [];
+    raindrops[0] = {};
+    raindrops[0].speed = 0.1;
+    raindrops[0].y = 0;
+
     animationLoop();
 }
 
@@ -57,11 +64,11 @@ function animationLoop() {
 function update() {
     // Move each raindrop down one position
     for (let i = 0; i < raindrops.length; i++) {
-        raindrops[i]++;
+        raindrops[i].y += raindrops[i].speed;
 
         // Reset raindrop to top when it goes off screen
-        if (raindrops[i] * CONFIG.FONT_SIZE > canvas.height) {
-            raindrops[i] = 0;
+        if (raindrops[i].y * CONFIG.FONT_SIZE > canvas.height) {
+            raindrops[i].y = 0;
         }
     }
 }
@@ -71,17 +78,16 @@ function draw() {
     ctx.fillStyle = CONFIG.COLOURS.BACKGROUND;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw each raindrop in its column
     for (let i = 0; i < raindrops.length; i++) {
         const x = i * CONFIG.FONT_SIZE;
-        const y = raindrops[i] * CONFIG.FONT_SIZE;
+        const y = Math.floor(raindrops[i].y) * CONFIG.FONT_SIZE; // Use the y position of the raindrop
         const char = getRandomCharacter();
         ctx.fillStyle = CONFIG.COLOURS.GREENS[Math.floor(Math.random() * CONFIG.COLOURS.GREENS.length)];
         ctx.fillText(char, x, y);
     }
 }
 
-// Get a random character from our matrix character set
+// Get a random character from our matrix character set.
 function getRandomCharacter() {
     const chars = CHARACTERS.all;
     return chars[Math.floor(Math.random() * chars.length)];
