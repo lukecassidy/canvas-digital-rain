@@ -44,12 +44,6 @@ function init() {
     columns = Math.floor(canvas.width / CONFIG.FONT_SIZE);
     rows = Math.floor(canvas.height / CONFIG.FONT_SIZE);
 
-    // // Initialise 1 raindrop for testing
-    // raindrops = [];
-    // raindrops[0] = {};
-    // raindrops[0].speed = CONFIG.SPEED + (Math.random() - 0.5) * CONFIG.SPEED_VARIATION;
-    // raindrops[0].y = 0;
-
     // Initialise raindrops with positions + unique speeds
     raindrops = Array.from({ length: columns }, () => ({
         y: 0,
