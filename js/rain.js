@@ -16,7 +16,8 @@ const CONFIG = Object.freeze({
     TIME_STEP: 100, // time in ms between character steps
     HIDDEN_MESSAGE: 'lukeiscool',
     HIDDEN_MESSAGE_COLOUR: '#0FF',
-    MESSAGE_CHANCE: 0.02, // chance each frame for a stream to start message
+    HIDDEN_MESSAGE_CHANCE: 0.02,
+    RESET_THRESHOLD: 0.975,
     COLOURS: {
         BACKGROUND: 'rgba(0, 0, 0, 0.09)', // semi-transparent black
         GREENS: ['#0F0', '#0C0', '#0A0', '#090', '#060', '#030'] // matrix greens
@@ -45,7 +46,7 @@ class RainStream {
     }
 
     update() {
-        if (this.row * this.fontSize > this.canvas.height && Math.random() > 0.975) {
+        if (this.row * this.fontSize > this.canvas.height && Math.random() > CONFIG.RESET_THRESHOLD) {
             this.reset();
         } else {
             this.row++;
@@ -73,7 +74,7 @@ class RainStream {
                 this.message = null;
                 this.messageIndex = 0;
             }
-        } else if (Math.random() < CONFIG.MESSAGE_CHANCE) {
+        } else if (Math.random() < CONFIG.HIDDEN_MESSAGE_CHANCE) {
             this.message = CONFIG.HIDDEN_MESSAGE;
             this.messageIndex = 0;
             char = this.message[this.messageIndex++];
