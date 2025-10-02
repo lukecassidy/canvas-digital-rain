@@ -33,6 +33,65 @@ const CHARACTERS = {
     }
 };
 
+// Class representing a single falling character.
+class RainDrop {
+    constructor(column, row, fontSize, canvas) {
+        this.column = column;
+        this.row = row;
+        this.fontSize = fontSize;
+        this.canvas = canvas;
+        this.message = null;
+        this.messageIndex = 0;
+    }
+
+    update() {
+        if (this.row * this.fontSize > this.canvas.height && Math.random() > 0.975) {
+            this.reset();
+        } else {
+            this.row++;
+        }
+    }
+
+    reset() {
+        this.row = 0;
+        this.message = null;
+        this.messageIndex = 0;
+    }
+
+    getCharacter() {
+        let char;
+        let colour = CONFIG.COLOURS.GREENS[
+            Math.floor(Math.random() * CONFIG.COLOURS.GREENS.length)
+        ];
+
+        if (this.message) {
+            char = this.message[this.messageIndex];
+            colour = CONFIG.HIDDEN_MESSAGE_COLOUR;
+            this.messageIndex++;
+
+            if (this.messageIndex >= this.message.length) {
+                this.message = null;
+                this.messageIndex = 0;
+            }
+        } else if (Math.random() < CONFIG.MESSAGE_CHANCE) {
+            this.message = CONFIG.HIDDEN_MESSAGE;
+            this.messageIndex = 0;
+            char = this.message[this.messageIndex++];
+            colour = CONFIG.HIDDEN_MESSAGE_COLOUR;
+        } else {
+            char = this.getRandomCharacter();
+        }
+
+        return { char, colour };
+    }
+
+    getRandomCharacter() {
+        const chars = CHARACTERS.all;
+        return chars[Math.floor(Math.random() * chars.length)];
+    }
+}
+
+// Class representing the full digital rain effect.
 class DigitalRain {
     constructor(ctx, canvas, fontSize) {
         this.ctx = ctx;
@@ -45,26 +104,13 @@ class DigitalRain {
 
         // Initialize raindrop positions
         for (let i = 0; i < this.columns; i++) {
-            this.drops[i] = {
-                column: i,
-                row: Math.floor(Math.random() * this.rows),
-                message: null,
-                messageIndex: 0
-            };
+            this.drops[i] = new RainDrop(i, Math.floor(Math.random() * this.rows), fontSize, canvas);
         }
     }
 
     update() {
         for (let drop of this.drops) {
-            // Reset drop to top randomly after it goes off screen.
-            if (drop.row * this.fontSize > this.canvas.height && Math.random() > 0.975) {
-                drop.row = 0;
-                drop.message = null;
-                drop.messageIndex = 0;
-            } else {
-                // Move drop down one row.
-                drop.row++;
-            }
+            drop.update();
         }
     }
 
@@ -75,49 +121,11 @@ class DigitalRain {
         for (let drop of this.drops) {
             const x = drop.column * this.fontSize;
             const y = drop.row * this.fontSize;
-
-            const { char, colour } = this.getCharacterForDrop(drop);
+            const { char, colour } = drop.getCharacter();
 
             this.ctx.fillStyle = colour;
             this.ctx.fillText(char, x, y);
         }
-    }
-
-    // Decide which character/colour a drop should render
-    getCharacterForDrop(drop) {
-        let char;
-        let colour = CONFIG.COLOURS.GREENS[
-            Math.floor(Math.random() * CONFIG.COLOURS.GREENS.length)
-        ];
-
-        if (drop.message) {
-            // Continue printing hidden message
-            char = drop.message[drop.messageIndex];
-            colour = CONFIG.HIDDEN_MESSAGE_COLOUR;
-            drop.messageIndex++;
-
-            if (drop.messageIndex >= drop.message.length) {
-                drop.message = null;
-                drop.messageIndex = 0;
-            }
-        } else if (Math.random() < CONFIG.MESSAGE_CHANCE) {
-            // Start hidden message
-            drop.message = CONFIG.HIDDEN_MESSAGE;
-            drop.messageIndex = 0;
-            char = drop.message[drop.messageIndex++];
-            colour = CONFIG.HIDDEN_MESSAGE_COLOUR;
-        } else {
-            // Default random character
-            char = this.getRandomCharacter();
-        }
-
-        return { char, colour };
-    }
-
-    // Get a random character from the character set.
-    getRandomCharacter() {
-        const chars = CHARACTERS.all;
-        return chars[Math.floor(Math.random() * chars.length)];
     }
 }
 
