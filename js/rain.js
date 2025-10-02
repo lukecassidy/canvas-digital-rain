@@ -16,7 +16,7 @@ const CONFIG = Object.freeze({
     FONT_FAMILY: 'monospace',
     TIME_STEP: 100, // time in ms between character steps
     COLOURS: {
-        BACKGROUND: 'rgba(0, 0, 0, 0.05)', // semi-transparent black
+        BACKGROUND: 'rgba(0, 0, 0, 0.09)', // semi-transparent black
         GREENS: ['#0F0', '#0C0', '#0A0', '#090', '#060', '#030'] // matrix greens
     }
 });
