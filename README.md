@@ -1,5 +1,5 @@
 # canvas-digital-rain
-Another HTML5 `<canvas>` project built in pure JavaScript. The goal here was to recreate the iconic “digital rain” effect from The Matrix.
+Another HTML5 `<canvas>` project built in pure JavaScript. The goal here was to recreate the digital rain effect from The Matrix.
 
 ## Try It
 Open `canvas.html` in your browser.
