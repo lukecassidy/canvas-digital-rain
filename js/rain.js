@@ -14,6 +14,9 @@ const CONFIG = Object.freeze({
     FONT_SIZE: 16,
     FONT_FAMILY: 'monospace',
     TIME_STEP: 100, // time in ms between character steps
+    HIDDEN_MESSAGE: 'lukeiscool',
+    HIDDEN_MESSAGE_COLOUR: '#0FF',
+    MESSAGE_CHANCE: 0.02, // ~0.2% chance each frame for a drop to start message
     COLOURS: {
         BACKGROUND: 'rgba(0, 0, 0, 0.09)', // semi-transparent black
         GREENS: ['#0F0', '#0C0', '#0A0', '#090', '#060', '#030'] // matrix greens
@@ -30,7 +33,7 @@ const CHARACTERS = {
     }
 };
 
-// Class representing a stream of falling chars (raindrops).
+// Class representing a stream of falling chars.
 class RainStream {
     constructor(ctx, canvas, fontSize) {
         this.ctx = ctx;
@@ -45,7 +48,9 @@ class RainStream {
         for (let i = 0; i < this.columns; i++) {
             this.drops[i] = {
                 column: i,
-                row: Math.floor(Math.random() * this.rows)
+                row: Math.floor(Math.random() * this.rows),
+                message: null,
+                messageIndex: 0
             };
         }
     }
@@ -55,6 +60,8 @@ class RainStream {
             // Reset drop to top randomly after it goes off screen.
             if (drop.row * this.fontSize > this.canvas.height && Math.random() > 0.975) {
                 drop.row = 0;
+                drop.message = null;
+                drop.messageIndex = 0;
             } else {
                 // Move drop down one row.
                 drop.row++;
@@ -69,13 +76,43 @@ class RainStream {
         for (let drop of this.drops) {
             const x = drop.column * this.fontSize;
             const y = drop.row * this.fontSize;
-            const char = this.getRandomCharacter();
 
-            this.ctx.fillStyle = CONFIG.COLOURS.GREENS[
-                Math.floor(Math.random() * CONFIG.COLOURS.GREENS.length)
-            ];
+            const { char, colour } = this.getCharacterForDrop(drop);
+
+            this.ctx.fillStyle = colour;
             this.ctx.fillText(char, x, y);
         }
+    }
+
+    // Decide which character/colour a drop should render
+    getCharacterForDrop(drop) {
+        let char;
+        let colour = CONFIG.COLOURS.GREENS[
+            Math.floor(Math.random() * CONFIG.COLOURS.GREENS.length)
+        ];
+
+        if (drop.message) {
+            // Continue printing hidden message
+            char = drop.message[drop.messageIndex];
+            colour = CONFIG.HIDDEN_MESSAGE_COLOUR;
+            drop.messageIndex++;
+
+            if (drop.messageIndex >= drop.message.length) {
+                drop.message = null;
+                drop.messageIndex = 0;
+            }
+        } else if (Math.random() < CONFIG.MESSAGE_CHANCE) {
+            // Start hidden message
+            drop.message = CONFIG.HIDDEN_MESSAGE;
+            drop.messageIndex = 0;
+            char = drop.message[drop.messageIndex++];
+            colour = CONFIG.HIDDEN_MESSAGE_COLOUR;
+        } else {
+            // Default random character
+            char = this.getRandomCharacter();
+        }
+
+        return { char, colour };
     }
 
     // Get a random character from the character set.
