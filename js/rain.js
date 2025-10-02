@@ -2,8 +2,7 @@
 'use strict';
 
 let canvas, ctx;
-let columns, rows;
-let raindrops = [];
+let rainStream;
 
 // Using our own timing to control speed of character steps.
 let previousTimestamp = 0; // timestamp of the previous frame
@@ -31,6 +30,61 @@ const CHARACTERS = {
     }
 };
 
+// Class representing a stream of falling chars (raindrops).
+class RainStream {
+    constructor(ctx, canvas, fontSize) {
+        this.ctx = ctx;
+        this.canvas = canvas;
+        this.fontSize = fontSize;
+
+        this.columns = Math.floor(canvas.width / fontSize);
+        this.rows = Math.floor(canvas.height / fontSize);
+        this.drops = [];
+
+        // Initialize raindrop positions
+        for (let i = 0; i < this.columns; i++) {
+            this.drops[i] = {
+                column: i,
+                row: Math.floor(Math.random() * this.rows)
+            };
+        }
+    }
+
+    update() {
+        for (let drop of this.drops) {
+            // Reset drop to top randomly after it goes off screen.
+            if (drop.row * this.fontSize > this.canvas.height && Math.random() > 0.975) {
+                drop.row = 0;
+            } else {
+                // Move drop down one row.
+                drop.row++;
+            }
+        }
+    }
+
+    draw() {
+        this.ctx.fillStyle = CONFIG.COLOURS.BACKGROUND;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        for (let drop of this.drops) {
+            const x = drop.column * this.fontSize;
+            const y = drop.row * this.fontSize;
+            const char = this.getRandomCharacter();
+
+            this.ctx.fillStyle = CONFIG.COLOURS.GREENS[
+                Math.floor(Math.random() * CONFIG.COLOURS.GREENS.length)
+            ];
+            this.ctx.fillText(char, x, y);
+        }
+    }
+
+    // Get a random character from the character set.
+    getRandomCharacter() {
+        const chars = CHARACTERS.all;
+        return chars[Math.floor(Math.random() * chars.length)];
+    }
+}
+
 window.addEventListener('load', init);
 
 // Initialise the canvas and start the animation loop.
@@ -44,19 +98,19 @@ function init() {
     ctx.font = `${CONFIG.FONT_SIZE}px ${CONFIG.FONT_FAMILY}`;
     ctx.textBaseline = 'top';
 
-    // Calculate number of rows and columns that fit on the canvas
-    columns = Math.floor(canvas.width / CONFIG.FONT_SIZE);
-    rows = Math.floor(canvas.height / CONFIG.FONT_SIZE);
-
-    // Initialize raindrop positions
-    for (let i = 0; i < columns; i++) {
-        raindrops[i] = {
-            column: i,
-            row: Math.floor(Math.random() * rows)
-        };
-    }
+    rainStream = new RainStream(ctx, canvas, CONFIG.FONT_SIZE);
 
     requestAnimFrame(animationLoop);
+}
+
+// Update the state of the animation.
+function update() {
+    rainStream.update();
+}
+
+// Render the current frame.
+function draw() {
+    rainStream.draw();
 }
 
 // Main loop where we update state, draw, schedule next frame.
@@ -73,42 +127,6 @@ function animationLoop(timestamp) {
     }
 
     requestAnimFrame(animationLoop);
-}
-
-// Update the state of the animation.
-function update() {
-    for (let drop of raindrops) {
-        // Reset raindrop to top after it goes off screen
-        if (drop.row * CONFIG.FONT_SIZE > canvas.height && Math.random() > 0.975) {
-            drop.row = 0;
-        } else {
-            // Move raindrop down one row
-            drop.row++;
-        }
-    }
-}
-
-// Render the current frame.
-function draw() {
-    ctx.fillStyle = CONFIG.COLOURS.BACKGROUND;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Draw each raindrop character.
-    for (let i = 0; i < raindrops.length; i++) {
-        const drop = raindrops[i];
-        const x = drop.column * CONFIG.FONT_SIZE;
-        const y = drop.row * CONFIG.FONT_SIZE;
-        const char = getRandomCharacter();
-
-        ctx.fillStyle = CONFIG.COLOURS.GREENS[Math.floor(Math.random() * CONFIG.COLOURS.GREENS.length)];
-        ctx.fillText(char, x, y);
-    }
-}
-
-// Get a random character from our matrix character set.
-function getRandomCharacter() {
-    const chars = CHARACTERS.all;
-    return chars[Math.floor(Math.random() * chars.length)];
 }
 
 // Polyfill for cross browser requestAnimationFrame support.
