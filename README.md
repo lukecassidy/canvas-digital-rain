@@ -2,7 +2,7 @@
 Another HTML5 `<canvas>` project built in pure JavaScript. The goal here was to recreate the iconic “digital rain” effect from The Matrix.
 
 ## Try It
-Open `index.html` in your browser.
+Open `canvas.html` in your browser.
 
 ## How It Works
 - Characters fall in vertical streams across the canvas, moving down one row at a time.
