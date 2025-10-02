@@ -42,6 +42,7 @@ function init() {
     }
     ctx = canvas.getContext('2d');
     ctx.font = `${CONFIG.FONT_SIZE}px ${CONFIG.FONT_FAMILY}`;
+    ctx.textBaseline = 'top';
 
     // Calculate number of rows and columns that fit on the canvas
     columns = Math.floor(canvas.width / CONFIG.FONT_SIZE);
