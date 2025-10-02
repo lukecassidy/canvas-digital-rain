@@ -16,7 +16,7 @@ const CONFIG = Object.freeze({
     TIME_STEP: 100, // time in ms between character steps
     HIDDEN_MESSAGE: 'lukeiscool',
     HIDDEN_MESSAGE_COLOUR: '#0FF',
-    MESSAGE_CHANCE: 0.02, // ~0.2% chance each frame for a drop to start message
+    MESSAGE_CHANCE: 0.02, // chance each frame for a stream to start message
     COLOURS: {
         BACKGROUND: 'rgba(0, 0, 0, 0.09)', // semi-transparent black
         GREENS: ['#0F0', '#0C0', '#0A0', '#090', '#060', '#030'] // matrix greens
@@ -33,13 +33,13 @@ const CHARACTERS = {
     }
 };
 
-// Class representing a single falling character.
-class RainDrop {
-    constructor(column, row, fontSize, canvas) {
+// Class representing a single vertical stream of characters.
+class RainStream {
+    constructor(column, fontSize, canvas) {
         this.column = column;
-        this.row = row;
         this.fontSize = fontSize;
         this.canvas = canvas;
+        this.row = Math.floor(Math.random() * Math.floor(canvas.height / fontSize));
         this.message = null;
         this.messageIndex = 0;
     }
@@ -99,18 +99,17 @@ class DigitalRain {
         this.fontSize = fontSize;
 
         this.columns = Math.floor(canvas.width / fontSize);
-        this.rows = Math.floor(canvas.height / fontSize);
-        this.drops = [];
+        this.streams = [];
 
-        // Initialize raindrop positions
+        // Initialize one stream per column
         for (let i = 0; i < this.columns; i++) {
-            this.drops[i] = new RainDrop(i, Math.floor(Math.random() * this.rows), fontSize, canvas);
+            this.streams[i] = new RainStream(i, fontSize, canvas);
         }
     }
 
     update() {
-        for (let drop of this.drops) {
-            drop.update();
+        for (let stream of this.streams) {
+            stream.update();
         }
     }
 
@@ -118,10 +117,10 @@ class DigitalRain {
         this.ctx.fillStyle = CONFIG.COLOURS.BACKGROUND;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        for (let drop of this.drops) {
-            const x = drop.column * this.fontSize;
-            const y = drop.row * this.fontSize;
-            const { char, colour } = drop.getCharacter();
+        for (let stream of this.streams) {
+            const x = stream.column * this.fontSize;
+            const y = stream.row * this.fontSize;
+            const { char, colour } = stream.getCharacter();
 
             this.ctx.fillStyle = colour;
             this.ctx.fillText(char, x, y);
