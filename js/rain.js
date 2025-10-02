@@ -2,7 +2,7 @@
 'use strict';
 
 let canvas, ctx;
-let rainStream;
+let digitalRain;
 
 // Using our own timing to control speed of character steps.
 let previousTimestamp = 0; // timestamp of the previous frame
@@ -33,8 +33,7 @@ const CHARACTERS = {
     }
 };
 
-// Class representing a stream of falling chars.
-class RainStream {
+class DigitalRain {
     constructor(ctx, canvas, fontSize) {
         this.ctx = ctx;
         this.canvas = canvas;
@@ -135,19 +134,19 @@ function init() {
     ctx.font = `${CONFIG.FONT_SIZE}px ${CONFIG.FONT_FAMILY}`;
     ctx.textBaseline = 'top';
 
-    rainStream = new RainStream(ctx, canvas, CONFIG.FONT_SIZE);
+    digitalRain = new DigitalRain(ctx, canvas, CONFIG.FONT_SIZE);
 
     requestAnimFrame(animationLoop);
 }
 
 // Update the state of the animation.
 function update() {
-    rainStream.update();
+    digitalRain.update();
 }
 
 // Render the current frame.
 function draw() {
-    rainStream.draw();
+    digitalRain.draw();
 }
 
 // Main loop where we update state, draw, schedule next frame.
