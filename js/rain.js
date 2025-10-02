@@ -5,13 +5,16 @@ let canvas, ctx;
 let columns, rows;
 let raindrops = [];
 
+// Using our own timing to control speed of character steps.
+let previousTimestamp = 0; // timestamp of the previous frame
+let timeSinceLastStep = 0; // time in ms since last character step
+
 // Centralised immutable object to make config changes a little easier.
 const CONFIG = Object.freeze({
     CANVAS_ID: 'canvas-digital-rain',
     FONT_SIZE: 16,
     FONT_FAMILY: 'monospace',
-    SPEED: 0.3,
-    SPEED_VARIATION: 0.2,
+    TIME_STEP: 100, // time in ms between character steps
     COLOURS: {
         BACKGROUND: 'rgba(0, 0, 0, 0.05)', // semi-transparent black
         GREENS: ['#0F0', '#0C0', '#0A0', '#090', '#060', '#030'] // matrix greens
@@ -44,31 +47,42 @@ function init() {
     columns = Math.floor(canvas.width / CONFIG.FONT_SIZE);
     rows = Math.floor(canvas.height / CONFIG.FONT_SIZE);
 
-    // Initialise raindrops with positions + unique speeds
-    raindrops = Array.from({ length: columns }, () => ({
-        y: 0,
-        speed: CONFIG.SPEED + (Math.random() - 0.5) * CONFIG.SPEED_VARIATION
-    }));
+    // Initialize raindrop positions
+    for (let i = 0; i < columns; i++) {
+        raindrops[i] = {
+            x: i,
+            y: Math.floor(Math.random() * rows)
+        };
+    }
 
-    animationLoop();
+    requestAnimFrame(animationLoop);
 }
 
 // Main loop where we update state, draw, schedule next frame.
-function animationLoop() {
-    update();
-    draw();
+function animationLoop(timestamp) {
+    const timeDelta = timestamp - previousTimestamp;
+    previousTimestamp = timestamp;
+    timeSinceLastStep += timeDelta;
+
+    // Update/draw only if enough time has passed
+    if (timeSinceLastStep > CONFIG.TIME_STEP) {
+        timeSinceLastStep = 0;
+        update();
+        draw();
+    }
+
     requestAnimFrame(animationLoop);
 }
 
 // Update the state of the animation.
 function update() {
-    // Move each raindrop down one position
-    for (let i = 0; i < raindrops.length; i++) {
-        raindrops[i].y += raindrops[i].speed;
-
-        // Reset raindrop to top when it goes off screen
-        if (raindrops[i].y * CONFIG.FONT_SIZE > canvas.height) {
-            raindrops[i].y = 0;
+    for (let drop of raindrops) {
+        // Reset raindrop to top after it goes off screen
+        if (drop.y * CONFIG.FONT_SIZE > canvas.height && Math.random() > 0.975) {
+            drop.y = 0;
+        } else {
+            // Move raindrop down one row
+            drop.y++;
         }
     }
 }
@@ -78,10 +92,13 @@ function draw() {
     ctx.fillStyle = CONFIG.COLOURS.BACKGROUND;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    // Draw each raindrop character.
     for (let i = 0; i < raindrops.length; i++) {
-        const x = i * CONFIG.FONT_SIZE;
-        const y = Math.floor(raindrops[i].y) * CONFIG.FONT_SIZE; // Use the y position of the raindrop
+        const drop = raindrops[i];
+        const x = drop.x * CONFIG.FONT_SIZE;
+        const y = drop.y * CONFIG.FONT_SIZE;
         const char = getRandomCharacter();
+
         ctx.fillStyle = CONFIG.COLOURS.GREENS[Math.floor(Math.random() * CONFIG.COLOURS.GREENS.length)];
         ctx.fillText(char, x, y);
     }
