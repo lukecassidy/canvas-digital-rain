@@ -2,11 +2,30 @@
 <html>
 
 <head>
+    <meta charset="utf-8" />
     <title>Canvas Digital Rain!</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            background: #000;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            display: block;
+            width: 1184px;
+            height: 300px;
+        }
+    </style>
 </head>
 
 <body>
-    <canvas id="canvas-digital-rain" width="640" height="480"></canvas>
+    <canvas id="canvas-digital-rain" width="1184" height="300"></canvas>
     <script src="js/rain.js"></script>
 </body>
 
