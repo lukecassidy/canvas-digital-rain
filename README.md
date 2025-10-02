@@ -9,3 +9,7 @@ Open `index.html` in your browser.
 - Each char is randomly chosen from a mix of Latin letters, numbers and Japanese Katakana.
 - A semi-transparent background fill creates the fading trail effect as chars descend.
 - You might even spot a hidden message among the rain. True story.
+
+---
+
+![lukeiscool-banner](https://github.com/user-attachments/assets/cd5c0285-b875-4e55-8cd7-b2b3970efc5c)
