@@ -51,8 +51,8 @@ function init() {
     // Initialize raindrop positions
     for (let i = 0; i < columns; i++) {
         raindrops[i] = {
-            x: i,
-            y: Math.floor(Math.random() * rows)
+            column: i,
+            row: Math.floor(Math.random() * rows)
         };
     }
 
@@ -79,11 +79,11 @@ function animationLoop(timestamp) {
 function update() {
     for (let drop of raindrops) {
         // Reset raindrop to top after it goes off screen
-        if (drop.y * CONFIG.FONT_SIZE > canvas.height && Math.random() > 0.975) {
-            drop.y = 0;
+        if (drop.row * CONFIG.FONT_SIZE > canvas.height && Math.random() > 0.975) {
+            drop.row = 0;
         } else {
             // Move raindrop down one row
-            drop.y++;
+            drop.row++;
         }
     }
 }
@@ -96,8 +96,8 @@ function draw() {
     // Draw each raindrop character.
     for (let i = 0; i < raindrops.length; i++) {
         const drop = raindrops[i];
-        const x = drop.x * CONFIG.FONT_SIZE;
-        const y = drop.y * CONFIG.FONT_SIZE;
+        const x = drop.column * CONFIG.FONT_SIZE;
+        const y = drop.row * CONFIG.FONT_SIZE;
         const char = getRandomCharacter();
 
         ctx.fillStyle = CONFIG.COLOURS.GREENS[Math.floor(Math.random() * CONFIG.COLOURS.GREENS.length)];
