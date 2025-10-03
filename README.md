@@ -12,4 +12,4 @@ Open `canvas.html` in your browser.
 
 ---
 
-![lukeiscool-banner](https://github.com/user-attachments/assets/cd5c0285-b875-4e55-8cd7-b2b3970efc5c)
+![canvas-digital-rain](https://github.com/user-attachments/assets/ecbf3f0b-ffef-4d9a-88b3-82e4d7f6343f)
