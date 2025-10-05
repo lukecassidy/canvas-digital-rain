@@ -158,9 +158,9 @@ function draw() {
 }
 
 // Main loop where we update state, draw, schedule next frame.
-function animationLoop(timestamp) {
-    const timeDelta = timestamp - previousTimestamp;
-    previousTimestamp = timestamp;
+function animationLoop(currentTimestamp) {
+    const timeDelta = currentTimestamp - previousTimestamp;
+    previousTimestamp = currentTimestamp;
     timeSinceLastStep += timeDelta;
 
     // Update/draw only if enough time has passed
