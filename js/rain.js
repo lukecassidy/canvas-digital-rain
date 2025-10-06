@@ -1,13 +1,6 @@
 // Enable strict mode for cleaner, safer JavaScript.
 'use strict';
 
-let canvas, ctx;
-let digitalRain;
-
-// Using our own timing to control update speed.
-let previousTimestamp = 0; // Timestamp of the previous frame
-let timeSinceLastStep = 0; // Time in ms since last character step
-
 // Centralised immutable object to make config changes a little easier.
 const CONFIG = Object.freeze({
     CANVAS_ID: 'canvas-digital-rain',
@@ -28,13 +21,12 @@ const CONFIG = Object.freeze({
 const CHARACTERS = {
     latin: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
     katakana: 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン',
-
     get all() {
         return this.latin + this.katakana;
     }
 };
 
-// Class representing a single vertical stream of characters.
+// Represents a single vertical stream of characters.
 class RainStream {
     constructor(column, fontSize, canvas) {
         this.column = column;
@@ -92,33 +84,33 @@ class RainStream {
     }
 }
 
-// Class representing the full digital rain effect.
+// Manages the full rain effect: all streams, updates, and drawing.
 class DigitalRain {
     constructor(ctx, canvas, fontSize) {
         this.ctx = ctx;
         this.canvas = canvas;
         this.fontSize = fontSize;
-
         this.columns = Math.floor(canvas.width / fontSize);
         this.streams = [];
-
         // Initialize one stream per column
         for (let i = 0; i < this.columns; i++) {
-            this.streams[i] = new RainStream(i, fontSize, canvas);
+            this.streams.push(new RainStream(i, fontSize, canvas));
         }
     }
 
+    // Update all streams
     update() {
-        for (let stream of this.streams) {
+        for (const stream of this.streams) {
             stream.update();
         }
     }
 
+    // Draw the current state of all streams
     draw() {
         this.ctx.fillStyle = CONFIG.COLOURS.BACKGROUND;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        for (let stream of this.streams) {
+        for (const stream of this.streams) {
             const x = stream.column * this.fontSize;
             const y = stream.row * this.fontSize;
             const { char, colour } = stream.getCharacter();
@@ -129,23 +121,23 @@ class DigitalRain {
     }
 }
 
-// Animation runner to manage requestAnimationFrame timing for an effect.
+// Animation runner that manages time-based updates.
 class AnimationRunner {
     constructor(effect, timeStep) {
         this.effect = effect;
         this.timeStep = timeStep;
         this.previousTimestamp = 0;
         this.timeSinceLastStep = 0;
-        this._boundLoop = this.loop.bind(this); // Bind the loop method to this instance
+        this.loop = this.loop.bind(this);
     }
 
     start() {
-        requestAnimFrame(this._boundLoop);
+        requestAnimFrame(this.loop);
     }
 
-    loop(timestamp) {
-        const timeDelta = timestamp - this.previousTimestamp;
-        this.previousTimestamp = timestamp;
+    loop(currentTimestamp) {
+        const timeDelta = currentTimestamp - this.previousTimestamp;
+        this.previousTimestamp = currentTimestamp;
         this.timeSinceLastStep += timeDelta;
 
         // Update/draw only if enough time has passed
@@ -155,28 +147,25 @@ class AnimationRunner {
             this.effect.draw();
         }
 
-        requestAnimFrame(this._boundLoop);
+        requestAnimFrame(this.loop);
     }
 }
 
-window.addEventListener('load', init);
-
-// Initialise the canvas and start the animation loop.
-function init() {
-    canvas = document.getElementById(CONFIG.CANVAS_ID);
+// Initialise the animation when the window loads.
+window.addEventListener('load', () => {
+    const canvas = document.getElementById(CONFIG.CANVAS_ID);
     if (!canvas) {
         console.error(`Canvas element with id="${CONFIG.CANVAS_ID}" not found.`);
         return;
     }
-    ctx = canvas.getContext('2d');
+
+    const ctx = canvas.getContext('2d');
     ctx.font = `${CONFIG.FONT_SIZE}px ${CONFIG.FONT_FAMILY}`;
     ctx.textBaseline = 'top';
 
-    digitalRain = new DigitalRain(ctx, canvas, CONFIG.FONT_SIZE);
-
-    const runner = new AnimationRunner(digitalRain, CONFIG.TIME_STEP);
-    runner.start();
-}
+    const dr = new DigitalRain(ctx, canvas, CONFIG.FONT_SIZE);
+    new AnimationRunner(dr, CONFIG.TIME_STEP).start();
+});
 
 // Polyfill for cross browser requestAnimationFrame support.
 window.requestAnimFrame = (function () {
@@ -185,7 +174,6 @@ window.requestAnimFrame = (function () {
         window.webkitRequestAnimationFrame ||
         window.mozRequestAnimationFrame ||
         function (callback) {
-            // Fallback to 30 FPS
             window.setTimeout(callback, 1000 / 30);
         }
     );
