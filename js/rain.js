@@ -4,16 +4,16 @@
 let canvas, ctx;
 let digitalRain;
 
-// Using our own timing to control speed of character steps.
-let previousTimestamp = 0; // timestamp of the previous frame
-let timeSinceLastStep = 0; // time in ms since last character step
+// Using our own timing to control update speed.
+let previousTimestamp = 0; // Timestamp of the previous frame
+let timeSinceLastStep = 0; // Time in ms since last character step
 
 // Centralised immutable object to make config changes a little easier.
 const CONFIG = Object.freeze({
     CANVAS_ID: 'canvas-digital-rain',
     FONT_SIZE: 16,
     FONT_FAMILY: 'monospace',
-    TIME_STEP: 100, // time in ms between character steps
+    TIME_STEP: 100, // Time in ms between updates
     HIDDEN_MESSAGE: 'lukeiscool',
     HIDDEN_MESSAGE_COLOUR: '#0FF',
     HIDDEN_MESSAGE_CHANCE: 0.02,
@@ -129,6 +129,36 @@ class DigitalRain {
     }
 }
 
+// Animation runner to manage requestAnimationFrame timing for an effect.
+class AnimationRunner {
+    constructor(effect, timeStep) {
+        this.effect = effect;
+        this.timeStep = timeStep;
+        this.previousTimestamp = 0;
+        this.timeSinceLastStep = 0;
+        this._boundLoop = this.loop.bind(this); // Bind the loop method to this instance
+    }
+
+    start() {
+        requestAnimFrame(this._boundLoop);
+    }
+
+    loop(timestamp) {
+        const timeDelta = timestamp - this.previousTimestamp;
+        this.previousTimestamp = timestamp;
+        this.timeSinceLastStep += timeDelta;
+
+        // Update/draw only if enough time has passed
+        if (this.timeSinceLastStep > this.timeStep) {
+            this.timeSinceLastStep = 0;
+            this.effect.update();
+            this.effect.draw();
+        }
+
+        requestAnimFrame(this._boundLoop);
+    }
+}
+
 window.addEventListener('load', init);
 
 // Initialise the canvas and start the animation loop.
@@ -144,33 +174,8 @@ function init() {
 
     digitalRain = new DigitalRain(ctx, canvas, CONFIG.FONT_SIZE);
 
-    requestAnimFrame(animationLoop);
-}
-
-// Update the state of the animation.
-function update() {
-    digitalRain.update();
-}
-
-// Render the current frame.
-function draw() {
-    digitalRain.draw();
-}
-
-// Main loop where we update state, draw, schedule next frame.
-function animationLoop(timestamp) {
-    const timeDelta = timestamp - previousTimestamp;
-    previousTimestamp = timestamp;
-    timeSinceLastStep += timeDelta;
-
-    // Update/draw only if enough time has passed
-    if (timeSinceLastStep > CONFIG.TIME_STEP) {
-        timeSinceLastStep = 0;
-        update();
-        draw();
-    }
-
-    requestAnimFrame(animationLoop);
+    const runner = new AnimationRunner(digitalRain, CONFIG.TIME_STEP);
+    runner.start();
 }
 
 // Polyfill for cross browser requestAnimationFrame support.
