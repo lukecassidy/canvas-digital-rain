@@ -85,7 +85,7 @@ class RainStream {
 }
 
 // Manages the full rain effect: all streams, updates, and drawing.
-class DigitalRain {
+class RainSystem {
     constructor(ctx, canvas, fontSize) {
         this.ctx = ctx;
         this.canvas = canvas;
@@ -163,8 +163,8 @@ window.addEventListener('load', () => {
     ctx.font = `${CONFIG.FONT_SIZE}px ${CONFIG.FONT_FAMILY}`;
     ctx.textBaseline = 'top';
 
-    const dr = new DigitalRain(ctx, canvas, CONFIG.FONT_SIZE);
-    new AnimationRunner(dr, CONFIG.TIME_STEP).start();
+    const rainSystem = new RainSystem(ctx, canvas, CONFIG.FONT_SIZE);
+    new AnimationRunner(rainSystem, CONFIG.TIME_STEP).start();
 });
 
 // Polyfill for cross browser requestAnimationFrame support.
