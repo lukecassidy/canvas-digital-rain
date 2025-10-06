@@ -26,6 +26,8 @@ const CHARACTERS = {
     }
 };
 
+// ---------------------------------------------------------------------------
+
 // Represents a single vertical stream of characters.
 class RainStream {
     constructor(column, fontSize, canvas) {
@@ -121,6 +123,8 @@ class RainSystem {
     }
 }
 
+// ---------------------------------------------------------------------------
+
 // Animation runner that manages time-based updates.
 class AnimationRunner {
     constructor(effect, timeStep) {
@@ -150,6 +154,8 @@ class AnimationRunner {
         requestAnimFrame(this.loop);
     }
 }
+
+// ---------------------------------------------------------------------------
 
 // Initialise the animation when the window loads.
 window.addEventListener('load', () => {
