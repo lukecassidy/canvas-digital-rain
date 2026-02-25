@@ -74,16 +74,12 @@ class RainStream {
             char = this.message[this.messageIndex++];
             colour = CONFIG.HIDDEN_MESSAGE_COLOUR;
         } else {
-            char = this.getRandomCharacter();
+            char = Helper.getRandomCharacter();
         }
 
         return { char, colour };
     }
 
-    getRandomCharacter() {
-        const chars = CHARACTERS.all;
-        return chars[Math.floor(Math.random() * chars.length)];
-    }
 }
 
 // Manages the full rain effect: all streams, updates, and drawing.
@@ -157,6 +153,16 @@ class AnimationRunner {
 
 // ---------------------------------------------------------------------------
 
+// Helper functions.
+class Helper {
+    static getRandomCharacter() {
+        const chars = CHARACTERS.all;
+        return chars[Math.floor(Math.random() * chars.length)];
+    }
+}
+
+// ---------------------------------------------------------------------------
+
 // Initialise the animation when the window loads.
 window.addEventListener('load', () => {
     const canvas = document.getElementById(CONFIG.CANVAS_ID);
@@ -180,6 +186,7 @@ window.requestAnimFrame = (function () {
         window.webkitRequestAnimationFrame ||
         window.mozRequestAnimationFrame ||
         function (callback) {
+            // Fallback to 30 FPS
             window.setTimeout(callback, 1000 / 30);
         }
     );
