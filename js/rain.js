@@ -1,7 +1,11 @@
 // Enable strict mode for cleaner, safer JavaScript.
 'use strict';
 
+// ---------------------------------------------------------------------------
+// CONFIG
 // Centralised immutable object to make config changes a little easier.
+// ---------------------------------------------------------------------------
+
 const CONFIG = Object.freeze({
     CANVAS_ID: 'canvas-digital-rain',
     FONT_SIZE: 16,
@@ -27,8 +31,10 @@ const CHARACTERS = {
 };
 
 // ---------------------------------------------------------------------------
-
+// ENTITY
 // Represents a single vertical stream of characters.
+// ---------------------------------------------------------------------------
+
 class RainStream {
     constructor(column, fontSize, canvas) {
         this.column = column;
@@ -82,8 +88,12 @@ class RainStream {
 
 }
 
+// ---------------------------------------------------------------------------
+// SCENE
 // Manages the full rain effect: all streams, updates, and drawing.
-class RainSystem {
+// ---------------------------------------------------------------------------
+
+class RainScene {
     constructor(ctx, canvas, fontSize) {
         this.ctx = ctx;
         this.canvas = canvas;
@@ -120,40 +130,45 @@ class RainSystem {
 }
 
 // ---------------------------------------------------------------------------
+// LOOP
+// Drives the fixed-timestep loop — no need to modify this.
+// Pass any Scene with update() and draw() methods.
+// ---------------------------------------------------------------------------
 
-// Animation runner that manages time-based updates.
-class AnimationRunner {
-    constructor(effect, timeStep) {
-        this.effect = effect;
+class Loop {
+    constructor(scene, timeStep) {
+        this.scene = scene;
         this.timeStep = timeStep;
-        this.previousTimestamp = 0;
-        this.timeSinceLastStep = 0;
-        this.loop = this.loop.bind(this);
+        this.lastTime = 0;
+        this.accumulator = 0;
+        this.tick = this.tick.bind(this);
     }
 
     start() {
-        requestAnimFrame(this.loop);
+        requestAnimFrame(this.tick);
     }
 
-    loop(currentTimestamp) {
-        const timeDelta = currentTimestamp - this.previousTimestamp;
-        this.previousTimestamp = currentTimestamp;
-        this.timeSinceLastStep += timeDelta;
+    tick(currentTimestamp) {
+        const timeDelta = currentTimestamp - this.lastTime;
+        this.lastTime = currentTimestamp;
+        this.accumulator += timeDelta;
 
         // Update/draw only if enough time has passed
-        if (this.timeSinceLastStep > this.timeStep) {
-            this.timeSinceLastStep = 0;
-            this.effect.update();
-            this.effect.draw();
+        if (this.accumulator > this.timeStep) {
+            this.accumulator = 0;
+            this.scene.update();
+            this.scene.draw();
         }
 
-        requestAnimFrame(this.loop);
+        requestAnimFrame(this.tick);
     }
 }
 
 // ---------------------------------------------------------------------------
+// HELPER
+// Static utility methods shared across the codebase.
+// ---------------------------------------------------------------------------
 
-// Helper functions.
 class Helper {
     static getRandomCharacter() {
         const chars = CHARACTERS.all;
@@ -175,8 +190,8 @@ window.addEventListener('load', () => {
     ctx.font = `${CONFIG.FONT_SIZE}px ${CONFIG.FONT_FAMILY}`;
     ctx.textBaseline = 'top';
 
-    const rainSystem = new RainSystem(ctx, canvas, CONFIG.FONT_SIZE);
-    new AnimationRunner(rainSystem, CONFIG.TIME_STEP).start();
+    const scene = new RainScene(ctx, canvas, CONFIG.FONT_SIZE);
+    new Loop(scene, CONFIG.TIME_STEP).start();
 });
 
 // Polyfill for cross browser requestAnimationFrame support.
