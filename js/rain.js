@@ -3,21 +3,22 @@
 
 // ---------------------------------------------------------------------------
 // CONFIG
-// Centralised immutable object to make config changes a little easier.
+// All the tunable numbers live here — speeds, sizes, counts, colours.
+// Keep magic numbers out of the classes below.
 // ---------------------------------------------------------------------------
 
 const CONFIG = Object.freeze({
     CANVAS_ID: 'canvas-digital-rain',
     FONT_SIZE: 16,
     FONT_FAMILY: 'monospace',
-    TIME_STEP: 100, // Time in ms between updates
+    TIME_STEP: 100, // ms between updates. Bump this up to slow things down.
     HIDDEN_MESSAGE: 'lukeiscool',
     HIDDEN_MESSAGE_COLOUR: '#0FF',
     HIDDEN_MESSAGE_CHANCE: 0.02,
     RESET_THRESHOLD: 0.975,
     COLOURS: {
-        BACKGROUND: 'rgba(0, 0, 0, 0.09)', // semi-transparent black
-        GREENS: ['#0F0', '#0C0', '#0A0', '#090', '#060', '#030'] // matrix greens
+        BACKGROUND: 'rgba(0, 0, 0, 0.09)', // Semi-transparent fill each frame — lower alpha = longer trails.
+        GREENS: ['#0F0', '#0C0', '#0A0', '#090', '#060', '#030'] // Matrix greens.
     }
 });
 
@@ -32,7 +33,7 @@ const CHARACTERS = {
 
 // ---------------------------------------------------------------------------
 // ENTITY
-// Represents a single vertical stream of characters.
+// A single vertical stream of falling characters.
 // ---------------------------------------------------------------------------
 
 class RainStream {
@@ -90,7 +91,7 @@ class RainStream {
 
 // ---------------------------------------------------------------------------
 // SCENE
-// Manages the full rain effect: all streams, updates, and drawing.
+// Owns all the streams — one per column. Creates, updates, and draws them.
 // ---------------------------------------------------------------------------
 
 class RainScene {
@@ -100,21 +101,20 @@ class RainScene {
         this.fontSize = fontSize;
         this.columns = Math.floor(canvas.width / fontSize);
         this.streams = [];
-        // Initialize one stream per column
+        // Spawn one stream per column.
         for (let i = 0; i < this.columns; i++) {
             this.streams.push(new RainStream(i, fontSize, canvas));
         }
     }
 
-    // Update all streams
     update() {
         for (const stream of this.streams) {
             stream.update();
         }
     }
 
-    // Draw the current state of all streams
     draw() {
+        // Lay down a semi-transparent fill each frame — this is what creates the trails.
         this.ctx.fillStyle = CONFIG.COLOURS.BACKGROUND;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -131,8 +131,8 @@ class RainScene {
 
 // ---------------------------------------------------------------------------
 // LOOP
-// Drives the fixed-timestep loop — no need to modify this.
-// Pass any Scene with update() and draw() methods.
+// Fixed-timestep animation loop — no need to touch this.
+// Just pass it a Scene with update() and draw() and it handles the rest.
 // ---------------------------------------------------------------------------
 
 class Loop {
@@ -148,7 +148,7 @@ class Loop {
         this.rafId = requestAnimFrame(this.tick);
     }
 
-    // Not used in this project — call to halt the animation loop.
+    // Not used here — call this if you ever need to halt the loop.
     stop() {
         cancelAnimationFrame(this.rafId);
     }
@@ -158,7 +158,7 @@ class Loop {
         this.lastTime = currentTimestamp;
         this.accumulator += timeDelta;
 
-        // Update/draw only if enough time has passed
+        // Only update and draw once enough time has built up.
         if (this.accumulator > this.timeStep) {
             this.accumulator = 0;
             this.scene.update();
@@ -171,10 +171,11 @@ class Loop {
 
 // ---------------------------------------------------------------------------
 // HELPER
-// Static utility methods shared across the codebase.
+// Pure utility methods — nothing project-specific goes in here.
 // ---------------------------------------------------------------------------
 
 class Helper {
+    // Random character from the full set.
     static getRandomCharacter() {
         const chars = CHARACTERS.all;
         return chars[Math.floor(Math.random() * chars.length)];
@@ -183,7 +184,7 @@ class Helper {
 
 // ---------------------------------------------------------------------------
 
-// Initialise the animation when the window loads.
+// Kick everything off once the page has loaded.
 window.addEventListener('load', () => {
     const canvas = document.getElementById(CONFIG.CANVAS_ID);
     if (!canvas) {
@@ -199,7 +200,7 @@ window.addEventListener('load', () => {
     new Loop(scene, CONFIG.TIME_STEP).start();
 });
 
-// Polyfill for cross browser requestAnimationFrame support.
+// Polyfill for cross-browser requestAnimationFrame support.
 window.requestAnimFrame = (function () {
     return (
         window.requestAnimationFrame ||
