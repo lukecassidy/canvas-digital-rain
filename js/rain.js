@@ -60,7 +60,7 @@ class RainStream {
         this.messageIndex = 0;
     }
 
-    getCharacter() {
+    nextCharacter() {
         let char;
         let colour = CONFIG.COLOURS.GREENS[
             Math.floor(Math.random() * CONFIG.COLOURS.GREENS.length)
@@ -121,7 +121,7 @@ class RainScene {
         for (const stream of this.streams) {
             const x = stream.column * this.fontSize;
             const y = stream.row * this.fontSize;
-            const { char, colour } = stream.getCharacter();
+            const { char, colour } = stream.nextCharacter();
 
             this.ctx.fillStyle = colour;
             this.ctx.fillText(char, x, y);
@@ -145,12 +145,12 @@ class Loop {
     }
 
     start() {
-        this.rafId = requestAnimFrame(this.tick);
+        this.animFrameId = requestAnimFrame(this.tick);
     }
 
     // Not used here — call this if you ever need to halt the loop.
     stop() {
-        cancelAnimationFrame(this.rafId);
+        cancelAnimationFrame(this.animFrameId);
     }
 
     tick(currentTimestamp) {
@@ -165,7 +165,7 @@ class Loop {
             this.scene.draw();
         }
 
-        this.rafId = requestAnimFrame(this.tick);
+        this.animFrameId = requestAnimFrame(this.tick);
     }
 }
 
@@ -193,6 +193,11 @@ window.addEventListener('load', () => {
     }
 
     const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        console.error('Failed to get 2D rendering context.');
+        return;
+    }
+
     ctx.font = `${CONFIG.FONT_SIZE}px ${CONFIG.FONT_FAMILY}`;
     ctx.textBaseline = 'top';
 
